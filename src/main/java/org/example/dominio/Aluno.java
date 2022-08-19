@@ -1,23 +1,29 @@
 package org.example.dominio;
 
+import lombok.Data;
+
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+@Data
 public class Aluno {
 
     private String nome;
     private String matricula;
     private Date dataNascimento;
 
-    private List<InscricaoCurso> inscricaoCursoList;
+    private Collection<InscricaoCurso> inscricaoCursoList;
 
 
-    public String apresentar(){
+    public String apresentar() {
 
         LocalDate dataNascimento = this.dataNascimento.toInstant()
                 .atZone(ZoneId.systemDefault()).toLocalDate();
@@ -25,11 +31,11 @@ public class Aluno {
                         ", %n \t Cursos %n%s",
                 this.getNome(), this.getMatricula(),
                 DateTimeFormatter.ofPattern("dd/MM/yyyy").format(dataNascimento),
-                Period.between(dataNascimento,LocalDate.now()).getYears()
-                ,getCursos());
+                Period.between(dataNascimento, LocalDate.now()).getYears()
+                , getCursos());
     }
 
-    public String apresentarDate(){
+    public String apresentarDate() {
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(dataNascimento);
@@ -38,55 +44,40 @@ public class Aluno {
                         ", %n \t Cursos %n%s",
                 this.getNome(), this.getMatricula(),
                 dataFormatada
-                ,getCursos());
+                , getCursos());
     }
 
     private String getCursos() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Curso \t Data Inicio \t Data Término \n");
+        builder.append("Curso \t Data Inicio \t Data Término \t Dias para começar o curso \n");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-        for (InscricaoCurso objetoInscricaoCurso: inscricaoCursoList) {
+        for (InscricaoCurso objetoInscricaoCurso : inscricaoCursoList) {
             final LocalDate dataTermino = objetoInscricaoCurso.getDataInicioDoCurso()
                     .plusMonths(objetoInscricaoCurso.getCurso().getDuracao());
-            builder.append(String.format("%s \t %s \t %s %n",
+            builder.append(String.format("%s \t %s \t %s \t %d %n",
                     objetoInscricaoCurso.getCurso().getNome()
-                    ,formatter.format(objetoInscricaoCurso.getDataInicioDoCurso()),
-                    formatter.format(dataTermino)));
+                    , formatter.format(objetoInscricaoCurso.getDataInicioDoCurso()),
+                    formatter.format(dataTermino),
+                    Duration.between(LocalDate.now().atStartOfDay(), objetoInscricaoCurso.getDataInicioDoCurso().atStartOfDay())
+                            .toDays()
+            ));
         }
 
         return builder.toString();
     }
 
-    public String getNome() {
-        return nome;
+    public boolean containsCurso(String nomeCurso) {
+        List<String> nomesCursos = getNomesDosCursos(this.getInscricaoCursoList());
+        return nomesCursos.contains(nomeCurso);
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    private List<String> getNomesDosCursos(Collection<InscricaoCurso> inscricaoCursoList) {
+        List<String> nomesDosCursos = new ArrayList<>();
+        for (InscricaoCurso inscricaoCurso : inscricaoCursoList) {
+            nomesDosCursos.add(inscricaoCurso.getCurso().getNome());
+        }
+        return nomesDosCursos;
     }
 
-    public String getMatricula() {
-        return matricula;
-    }
-
-    public void setMatricula(String matricula) {
-        this.matricula = matricula;
-    }
-
-    public Date getDataNascimento() {
-        return dataNascimento;
-    }
-
-    public void setDataNascimento(Date dataNascimento) {
-        this.dataNascimento = dataNascimento;
-    }
-
-    public List<InscricaoCurso> getInscricaoCursoList() {
-        return inscricaoCursoList;
-    }
-
-    public void setInscricaoCursoList(List<InscricaoCurso> inscricaoCursoList) {
-        this.inscricaoCursoList = inscricaoCursoList;
-    }
 }
