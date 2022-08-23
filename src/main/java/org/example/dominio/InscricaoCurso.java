@@ -1,34 +1,33 @@
 package org.example.dominio;
 
-import java.time.LocalDate;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.example.validacao.ValidaInscricaoCurso;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+@Data
+@NoArgsConstructor
 public class InscricaoCurso {
 
     private Aluno aluno;
     private Curso curso;
     private LocalDate dataInicioDoCurso;
 
-    public Aluno getAluno() {
-        return aluno;
+    public InscricaoCurso (Aluno aluno, Curso curso, LocalDate dataInicioDoCurso, String nomeDoCursoAnterior,
+                           ValidaInscricaoCurso validaInscricaoCurso){
+
+        if(validaInscricaoCurso.isValid(aluno,nomeDoCursoAnterior)){
+            this.aluno = aluno;
+            this.curso = curso;
+            this.dataInicioDoCurso = dataInicioDoCurso;
+        }else {
+            throw new RuntimeException("Não é possível se inscrever no curso");
+        }
+
     }
 
-    public void setAluno(Aluno aluno) {
-        this.aluno = aluno;
-    }
 
-    public Curso getCurso() {
-        return curso;
-    }
-
-    public void setCurso(Curso curso) {
-        this.curso = curso;
-    }
-
-    public LocalDate getDataInicioDoCurso() {
-        return dataInicioDoCurso;
-    }
-
-    public void setDataInicioDoCurso(LocalDate dataInicioDoCurso) {
-        this.dataInicioDoCurso = dataInicioDoCurso;
-    }
 }
