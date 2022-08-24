@@ -14,25 +14,39 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-public class Aluno {
+public class Aluno implements Comparable<Aluno> {
+
 
     private String nome;
     private String matricula;
     private Date dataNascimento;
-
     private Collection<InscricaoCurso> inscricaoCursoList;
 
+    public Aluno(String nome, String matricula, LocalDate dataNascimento) {
+        this.nome = nome;
+        this.matricula = matricula;
+        this.dataNascimento = Date.from(dataNascimento.atStartOfDay().atZone(ZoneId.systemDefault())
+                .toInstant());
+    }
+
+    public Aluno() {
+    }
 
     public String apresentar() {
 
-        LocalDate dataNascimento = this.dataNascimento.toInstant()
-                .atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate dataNascimento = getNascimentoLocalDate();
+
         return String.format("Aluno: %s de matricula %s com data de nascimento %s (%d anos)" +
                         ", %n \t Cursos %n%s",
                 this.getNome(), this.getMatricula(),
                 DateTimeFormatter.ofPattern("dd/MM/yyyy").format(dataNascimento),
                 Period.between(dataNascimento, LocalDate.now()).getYears()
                 , getCursos());
+    }
+
+    public LocalDate getNascimentoLocalDate() {
+        return this.dataNascimento.toInstant()
+                .atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     public String apresentarDate() {
@@ -80,4 +94,9 @@ public class Aluno {
         return nomesDosCursos;
     }
 
+
+    @Override
+    public int compareTo(Aluno o) {
+        return this.getNascimentoLocalDate().compareTo(o.getNascimentoLocalDate());
+    }
 }
