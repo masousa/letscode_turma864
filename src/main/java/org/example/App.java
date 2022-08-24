@@ -49,20 +49,7 @@ public class App {
                 new InscricaoCurso(aluno, cursoAWS, LocalDate.now().plusMonths(2L), "Deployment",
                         new ValidaAWS()));
 
-        // Classe anonima
-        aluno.getInscricaoCursoList().add(
-                new InscricaoCurso(aluno, cursoAWS, LocalDate.now().plusMonths(2L), "Deployment",
-                        new ValidaInscricaoCurso() {
-                            @Override
-                            public boolean isValid(Aluno aluno, String nomeCurso) {
-                                return aluno.containsCurso(nomeCurso);
-                            }
-                        }));
-
-        // expressão lambda
-        aluno.getInscricaoCursoList().add(
-                new InscricaoCurso(aluno, cursoAWS, LocalDate.now().plusMonths(2L), "Deployment",
-                        (Aluno a, String s) -> aluno.containsCurso(s)));
+        criandoInscricaoCursoClasseAnonimaELambda(aluno, cursoAWS);
 
         aluno.setMatricula("qualquer");
         aluno.setNome("Ronald");
@@ -79,6 +66,29 @@ public class App {
         LocalDateTime.now(ZoneId.of("Europe/Paris"));
 
 
+    }
+
+    private static void criandoInscricaoCursoClasseAnonimaELambda(Aluno aluno, Curso cursoAWS) {
+        // Aula 02
+        // Classe anonima
+        aluno.getInscricaoCursoList().add(
+                new InscricaoCurso(aluno, cursoAWS, LocalDate.now().plusMonths(2L), "Deployment",
+                        new ValidaInscricaoCurso() {
+                            @Override
+                            public boolean isValid(Aluno aluno, String nomeCurso) {
+                                return aluno.containsCurso(nomeCurso);
+                            }
+                        }));
+
+        // expressão lambda
+        aluno.getInscricaoCursoList().add(
+                new InscricaoCurso(aluno, cursoAWS, LocalDate.now().plusMonths(2L), "Deployment",
+                        (Aluno a, String s) -> aluno.containsCurso(s)));
+
+        // predicate
+        aluno.getInscricaoCursoList().add(
+                new InscricaoCurso(aluno, cursoAWS, LocalDate.now().plusMonths(2L),
+                        alunoComparacao -> alunoComparacao.containsCurso("Deployment")));
     }
 
 }
