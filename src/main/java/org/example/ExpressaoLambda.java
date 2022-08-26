@@ -1,6 +1,7 @@
 package org.example;
 
 import org.example.dominio.Aluno;
+import org.example.dominio.AlunoComparator;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -16,14 +17,27 @@ public class ExpressaoLambda {
                 new Aluno("José", "002", LocalDate.of(2002, 7, 5)),
                 new Aluno("Isabela", "003", LocalDate.of(2010, 9, 8))
         );
+        
+        Comparator<Aluno> alunoComparator = new AlunoComparator();
+        alunos.sort(alunoComparator);
 
-        // Classe Anonima
-        alunos.sort(new Comparator<Aluno>() {
+        Comparator<Aluno> alunoNomeComparator = new Comparator<Aluno>() {
             @Override
             public int compare(Aluno o1, Aluno o2) {
-                return o1.getNascimentoLocalDate().compareTo(o2.getNascimentoLocalDate());
+                return o1.getNome().compareTo(o2.getNome());
             }
-        });
+        };
+        alunos.sort(alunoNomeComparator);
+
+        // Classe Anonima
+        alunos.sort(
+                new Comparator<Aluno>() {
+                    @Override
+                    public int compare(Aluno o1, Aluno o2) {
+                        return o1.getNascimentoLocalDate().compareTo(o2.getNascimentoLocalDate());
+                    }
+                });
+
         alunos.sort((Aluno o1, Aluno o2) -> o1.getNascimentoLocalDate().compareTo(o2.getNascimentoLocalDate()));
 
         // Equivalente
