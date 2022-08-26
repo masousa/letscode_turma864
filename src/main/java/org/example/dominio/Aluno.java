@@ -20,13 +20,18 @@ public class Aluno implements Comparable<Aluno> {
     private String nome;
     private String matricula;
     private Date dataNascimento;
+
+    private int numeroCadastro;
     private Collection<InscricaoCurso> inscricaoCursoList;
 
     public Aluno(String nome, String matricula, LocalDate dataNascimento) {
         this.nome = nome;
         this.matricula = matricula;
+
         this.dataNascimento = Date.from(dataNascimento.atStartOfDay().atZone(ZoneId.systemDefault())
                 .toInstant());
+
+
     }
 
     public Aluno() {
