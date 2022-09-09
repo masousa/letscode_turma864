@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.assincrono.EscreveAlunoAssincronoCallable;
 import org.example.dominio.Aluno;
 
 import java.io.BufferedReader;
@@ -13,8 +14,14 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class AlunosNoArquivo {
+    private static final ExecutorService pool = Executors.newFixedThreadPool(3);
     private static Path caminho = Paths.get("/home/matheus/Documentos/Aulas/letscode/alunos.csv");
     private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -27,23 +34,53 @@ public class AlunosNoArquivo {
 
         try {
 
-            escreverCSVAluno(aluno1);
-            escreverCSVAluno(aluno2);
+            System.out.println("Começando os cadastros");
+
+            EscreveAlunoAssincronoCallable escreveAlunoAssincronoCallable = new EscreveAlunoAssincronoCallable(aluno3);
+            Future<Aluno> alunoFuture3 = pool.submit(escreveAlunoAssincronoCallable);
+
+            CompletableFuture<Aluno> alunoCompletableFuture4 = CompletableFuture.supplyAsync(() -> {
+                Aluno aluno = null;
+                try {
+                    aluno = escreverCSVAluno(aluno4, 2000);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                return aluno;
+            });
+
+            System.out.println("Finalizando o trabalho");
+
+            while (!alunoCompletableFuture4.isDone() || !alunoFuture3.isDone()) {
+                System.out.println("Future 3 " + alunoFuture3.isDone());
+                System.out.println("Future 4 " + alunoCompletableFuture4.isDone());
+                Thread.sleep(1000);
+            }
+            System.out.println(alunoFuture3.get().getNome());
             lerCSVAluno();
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             System.err.println("Deu erro");
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } finally {
+            System.exit(0);
         }
+
     }
 
-    public static void escreverCSVAluno(Aluno aluno) throws IOException {
+    public static Aluno escreverCSVAluno(Aluno aluno, Integer sleepTime) throws IOException {
         verificarExistenciaArquivo();
         try (BufferedWriter writer = Files.newBufferedWriter(caminho, StandardOpenOption.APPEND)) {
-
+            Thread.sleep(sleepTime);
             String alunoTexto = String.format("%s,%s,%s", aluno.getNome(), aluno.getMatricula(), dateTimeFormatter.format(aluno.getNascimentoLocalDate()));
             writer.write(alunoTexto);
             writer.newLine();
+            System.out.printf("Aluno inserido %s no arquivo pelo método escreverCSVAluno e dormiu por 2s %n", aluno.getNome());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
+        return aluno;
     }
 
     private static void verificarExistenciaArquivo() throws IOException {
@@ -61,7 +98,6 @@ public class AlunosNoArquivo {
             String[] itens = linha.split(",");
             Aluno aluno = new Aluno(itens[0], itens[1], LocalDate.parse(itens[2], dateTimeFormatter));
             alunos.add(aluno);
-            System.out.println(aluno.getNome());
         }
         return alunos;
     }
